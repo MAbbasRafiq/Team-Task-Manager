@@ -94,7 +94,7 @@ Users can:
 
 ## Contact
 
-For issues or inquiries, please reach out to [your-email@example.com].
+For issues or inquiries, reach out to abbasrafiq82@gmail.com .
 
 ---
 
