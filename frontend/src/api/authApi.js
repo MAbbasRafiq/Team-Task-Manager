@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://team-task-manager-2-a40r.onrender.com';
+const API_URL = 'https://team-task-manager-2-a40r.onrender.com/api/auth/';
 
 export const register = (username, password) =>
   axios.post(`${API_URL}/register`, { username, password }, { withCredentials: true });
