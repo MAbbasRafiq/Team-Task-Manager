@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://team-task-manager-2-a40r.onrender.com';
+const API_URL = 'https://team-task-manager-2-a40r.onrender.com/api/teams';
 
 export const getTeams = () =>
   axios.get(API_URL, { withCredentials: true });
