@@ -16,10 +16,27 @@ const taskRoutes = require('./routes/taskRoutes');
 
 const app = express();
 
+// app.use(cors({
+//   origin: 'http://localhost:5173',
+//   credentials: true
+// }));
+const allowedOrigins = [
+  'http://localhost:5173',  // Local development
+  'https://team-task-manager-ui.onrender.com',  // Frontend on Render
+];
+
 app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true
+  origin: (origin, callback) => {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
 }));
+
+
 app.use(express.json());
 
 app.use(session({
