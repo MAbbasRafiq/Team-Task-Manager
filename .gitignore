@@ -8,9 +8,10 @@ node_modules/
 *.log
 
 # Build directories
-/dist
-/build
+/dist/
+/build/
 
 # OS-specific files
 .DS_Store
 Thumbs.db
+node_modules
