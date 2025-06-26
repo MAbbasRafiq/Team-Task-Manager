@@ -8,54 +8,43 @@ const db = require('./models/db');
 const userModel = require('./models/userModel');
 const dotenv = require('dotenv');
 
+// Load environment variables
 dotenv.config();
 
+// Import routes
 const authRoutes = require('./routes/authRoutes');
 const teamRoutes = require('./routes/teamRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 
 const app = express();
 
-// CORS setup
-const allowedOrigins = [
-  'http://localhost:5173',  // Local development
-  'https://team-task-manager-ui.onrender.com',  // Frontend on Render
-];
-
+// CORS Configuration
 app.use(cors({
-  origin: (origin, callback) => {
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: process.env.NODE_ENV === 'production' 
+    ? 'https://team-task-manager-ui.onrender.com'  // Frontend URL in production
+    : 'http://localhost:5173',          // Development URL
   credentials: true,
 }));
 
+// Middleware
 app.use(express.json());
 
-// Force HTTPS in production
-if (process.env.NODE_ENV === 'production') {
-  app.use((req, res, next) => {
-    if (req.headers['x-forwarded-proto'] !== 'https') {
-      return res.redirect('https://' + req.headers.host + req.url);
-    }
-    next();
-  });
-}
-
+// Session Configuration
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'secret-key', // Use your own secret in production
+  secret: process.env.SESSION_SECRET || 'rdnsakmfviojmnuidshkcnmsiods_rvjksfcjkzdmxsnczzn',    // Use the secret from environment variables
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true }
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',  // Ensure cookies are secure in production
+  },
 }));
 
+// Passport setup
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Passport local strategy
+// Passport Local Strategy
 passport.use(new LocalStrategy(async (username, password, done) => {
   try {
     const user = await userModel.findByUsername(username);
@@ -81,7 +70,7 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// Auth middleware
+// Authentication middleware
 function ensureAuth(req, res, next) {
   if (req.isAuthenticated()) return next();
   res.status(401).json({ message: 'Not authenticated' });
@@ -92,15 +81,11 @@ app.use('/api/auth', authRoutes);
 app.use('/api/teams', ensureAuth, teamRoutes);
 app.use('/api/tasks', ensureAuth, taskRoutes);
 
+// Test route
 app.get('/', (req, res) => res.send('API is running!'));
 
-// Global error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err); // Log the error for debugging
-  res.status(500).json({ message: 'Internal server error', error: err.message });
-});
-
-// Set the port and start the server
+// Set port dynamically based on environment
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Server started on http://localhost:${PORT}`));
-
+app.listen(PORT, () => {
+  console.log(`Server started on http://localhost:${PORT}`);
+});
